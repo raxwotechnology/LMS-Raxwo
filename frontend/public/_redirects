@@ -1,2 +1,6 @@
+# API and uploads proxy to live Render backend
+/api/*  https://lms-raxwo.onrender.com/api/:splat  200!
+/uploads/*  https://lms-raxwo.onrender.com/uploads/:splat  200!
+
 # Redirect all routes to index.html (for React SPA)
 /*    /index.html   200

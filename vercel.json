@@ -1,57 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "frontend": {
-      "root": "frontend",
-      "framework": "vite"
-    },
-    "backend": {
-      "root": "backend",
-      "framework": "express"
-    }
-  },
   "rewrites": [
     {
-      "source": "/api",
-      "destination": {
-        "service": "backend",
-        "path": "/api"
-      }
-    },
-    {
       "source": "/api/(.*)",
-      "destination": {
-        "service": "backend",
-        "path": "/api/$1"
-      }
+      "destination": "https://lms-raxwo.onrender.com/api/$1"
     },
     {
       "source": "/uploads/(.*)",
-      "destination": {
-        "service": "backend",
-        "path": "/uploads/$1"
-      }
-    },
-    {
-      "source": "/assets/(.*)",
-      "destination": {
-        "service": "frontend",
-        "path": "/assets/$1"
-      }
-    },
-    {
-      "source": "/(.*\\.(?:js|css|ico|png|jpg|jpeg|svg|webp|json|txt))",
-      "destination": {
-        "service": "frontend",
-        "path": "/$1"
-      }
+      "destination": "https://lms-raxwo.onrender.com/uploads/$1"
     },
     {
       "source": "/(.*)",
-      "destination": {
-        "service": "frontend",
-        "path": "/index.html"
-      }
+      "destination": "/index.html"
     }
   ]
 }

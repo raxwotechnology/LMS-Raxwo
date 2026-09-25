@@ -6,16 +6,16 @@ const getApiBaseUrl = () => {
   // Custom environment variable set explicitly
   if (envUrl && envUrl.trim()) {
     const trimmed = envUrl.trim().replace(/\/+$/, '');
-    // In production, if someone left localhost in .env, ignore it and use relative path
+    // In production, if someone left localhost in .env, ignore it and use live backend
     if (import.meta.env.PROD && (trimmed.includes('localhost') || trimmed.includes('127.0.0.1'))) {
-      return '';
+      return 'https://lms-raxwo.onrender.com';
     }
     return trimmed;
   }
   
-  // In production builds on Vercel, when hosted together, use relative URL (same origin)
+  // In production builds (Vercel, Netlify, Render), default to your live Render backend
   if (import.meta.env.PROD) {
-    return '';
+    return 'https://lms-raxwo.onrender.com';
   }
   
   // Development mode: default to localhost:4000

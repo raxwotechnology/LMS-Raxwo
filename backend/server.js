@@ -54,7 +54,7 @@ const corsOptions = {
       // Add your production frontend URLs here when deployed
     ];
     
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app')) {
       callback(null, true);
     } else {
       callback(null, true); // Allow all origins for now - change to callback(new Error('Not allowed by CORS')) in production
