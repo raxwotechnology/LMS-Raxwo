@@ -66,7 +66,7 @@ const AdminDashboard = () => {
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        detectedType = parsedUser?.type || null;
+        detectedType = parsedUser?.type || parsedUser?.role || null;
       } catch (err) {
         console.error('Failed to parse user data:', err);
       }
@@ -76,11 +76,15 @@ const AdminDashboard = () => {
       detectedType = userTypeData;
     }
 
-    if (detectedType === 'admin') {
+    const normalized = (detectedType || '').toLowerCase();
+    if (normalized === 'admin') {
       setIsAdmin(true);
-    } else {
+    } else if (normalized === 'employee' || normalized === 'teacher') {
       setIsAdmin(false);
       navigate('/admin/class', { replace: true });
+    } else {
+      setIsAdmin(false);
+      navigate('/admin/login', { replace: true });
     }
 
     setRoleChecked(true);
@@ -797,8 +801,27 @@ const AdminDashboard = () => {
     );
   };
 
-  if (!roleChecked || !isAdmin) {
-    return null;
+  if (!roleChecked) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc', color: '#64748b', fontSize: '1rem', fontWeight: 500 }}>
+        Loading Admin Dashboard...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc', gap: '1rem' }}>
+        <p style={{ color: '#64748b', fontSize: '1rem' }}>Admin access required. Redirecting...</p>
+        <button 
+          type="button"
+          onClick={() => navigate('/admin/login', { replace: true })}
+          style={{ padding: '0.6rem 1.2rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+        >
+          Go to Admin Login
+        </button>
+      </div>
+    );
   }
 
   return (

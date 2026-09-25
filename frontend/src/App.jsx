@@ -208,8 +208,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/admin" element={<Navigate to="/admin/Dashboard" replace />} />
-          <Route path="/admin/*" element={<Navigate to="/admin/Dashboard" replace />} />
+          <Route path="/admin/*" element={<Navigate to="/admin/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>
