@@ -98,9 +98,39 @@ const LoginPage = () => {
           </button>
         </form>
 
-        {/* <div className="login-footer">
-          <p>Don't have an account? Contact your system administrator</p>
-        </div> */}
+        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.6rem' }}>
+            Are you a student looking for your portal?
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/student/login')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              width: '100%',
+              padding: '0.7rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: '#0f766e',
+              backgroundColor: '#f0fdfa',
+              border: '1.5px solid #99f6e4',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#ccfbf1';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#f0fdfa';
+            }}
+          >
+            🎓 Go to Student Portal Login &rarr;
+          </button>
+        </div>
       </div>
     </div>
   );

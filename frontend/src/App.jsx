@@ -91,7 +91,9 @@ const App = () => {
           </Route>
 
           {/* Admin Authentication */}
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<LoginPage />} />
+          <Route path="/admin/dashboard" element={<Navigate to="/admin/Dashboard" replace />} />
 
           {/* Protected Admin Routes */}
           <Route

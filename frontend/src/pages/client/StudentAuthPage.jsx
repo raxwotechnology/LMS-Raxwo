@@ -331,6 +331,45 @@ export default function StudentAuthPage({ initialMode = 'signin' }) {
             </div>
           </div>
 
+          {/* Top Switcher Bar */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/admin/login')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                color: '#475569',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#1e40af';
+                e.currentTarget.style.borderColor = '#93c5fd';
+                e.currentTarget.style.backgroundColor = '#eff6ff';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#475569';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Admin / Staff Portal &rarr;
+            </button>
+          </div>
+
           {/* Form Card */}
           <div className="auth-card">
             {/* Tabs */}
@@ -463,6 +502,47 @@ export default function StudentAuthPage({ initialMode = 'signin' }) {
                         >
                           Create an account
                         </span>
+                      </div>
+
+                      {/* Admin / Staff Login Switch Button */}
+                      <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.6rem' }}>
+                          Are you an Administrator or Staff Member?
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/admin/login')}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            color: '#1e40af',
+                            backgroundColor: '#eff6ff',
+                            border: '1.5px solid #bfdbfe',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#dbeafe';
+                            e.currentTarget.style.borderColor = '#93c5fd';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#eff6ff';
+                            e.currentTarget.style.borderColor = '#bfdbfe';
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                          </svg>
+                          Go to Admin Login &rarr;
+                        </button>
                       </div>
                     </form>
                   </div>
