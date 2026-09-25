@@ -160,11 +160,9 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
-// Start server only in non-serverless environment
-if (!process.env.VERCEL) {
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server Started on http://0.0.0.0:${PORT}`);
-  });
-}
+// Start server (works locally and detected by Vercel Web Services)
+app.listen(PORT, () => {
+  console.log(`Server Started on port ${PORT}`);
+});
 
 export default app;
