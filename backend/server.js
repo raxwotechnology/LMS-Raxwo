@@ -1,0 +1,170 @@
+import { connectDB } from "./config/db.js";
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import os from "os";
+import multer from "multer";
+import mongoose from "mongoose";
+import { fileURLToPath } from "url";
+import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import employeeRoutes from './routes/employeeRoutes.js';
+import subjectRoutes from './routes/subjectRoutes.js';
+import classRoutes from './routes/classRoutes.js';
+import expenseRoutes from './routes/expenseRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import incomeRoutes from './routes/incomeRoutes.js';
+import extraIncomeRoutes from './routes/extraIncomeRoutes.js';
+import marksRoutes from './routes/marksRoutes.js';
+import attemptRoutes from './routes/attemptRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import examRoutes from './routes/examRoutes.js';
+import examPaperRoutes from './routes/examPaperRoutes.js';
+import examPaperSubmissionRoutes from './routes/examPaperSubmissionRoutes.js';
+import studentActivityRoutes from './routes/studentActivityRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import { testS3Upload, testS3Delete } from './controllers/testS3Controller.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from cwd, backend/.env, or root .env
+dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+// CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'https://lms-tili.onrender.com',
+      // Add your production frontend URLs here when deployed
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins for now - change to callback(new Error('Not allowed by CORS')) in production
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600 // Cache preflight request for 10 minutes
+};
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Ensure database connection is ready for incoming requests (serverless & local)
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState === 0) {
+    try {
+      await connectDB();
+    } catch (dbErr) {
+      console.error("DB connection error in request middleware:", dbErr.message);
+    }
+  }
+  next();
+});
+
+// Configure Multer for file uploads
+const uploadDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'uploads')
+  : path.join(__dirname, 'uploads');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  // Ignored in read-only serverless environments
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+export const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images are allowed.'));
+    }
+  }
+});
+
+// Serve uploaded files
+app.use('/uploads', express.static(uploadDir));
+
+// Routes
+app.use('/api/admin/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/employees', employeeRoutes);
+app.use('/api/subjects', subjectRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/income', incomeRoutes);
+app.use('/api/extra-income', extraIncomeRoutes);
+app.use('/api/marks', marksRoutes);
+app.use('/api/attempts', attemptRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/exams', examRoutes);
+app.use('/api/exam-papers', examPaperRoutes);
+app.use('/api/exam-submissions', examPaperSubmissionRoutes);
+app.use('/api/student-activities', studentActivityRoutes);
+app.use('/api/admin/profile', profileRoutes);
+app.use('/api/settings', settingsRoutes);
+
+// Test routes for S3 (remove in production)
+app.post('/api/test/s3-upload', testS3Upload);
+app.delete('/api/test/s3-delete', testS3Delete);
+
+// Connect to Database
+connectDB();
+
+// Health check
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'Server is running' });
+});
+
+// Start server only in non-serverless environment
+if (!process.env.VERCEL) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server Started on http://0.0.0.0:${PORT}`);
+  });
+}
+
+export default app;

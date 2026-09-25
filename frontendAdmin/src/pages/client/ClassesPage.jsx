@@ -1,0 +1,495 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '../../components/Header';
+import API_CONFIG from '../../config/api';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
+import { useNotification } from '../../context/NotificationContext';
+import './ClassesPage.css';
+import teacherIcon from '../../assets/teacher.png';
+import dateIcon from '../../assets/date.png';
+import timeIcon from '../../assets/time.png';
+import emailIcon from '../../assets/email.png';
+
+const ClassesPage = () => {
+  const { showSuccess, showError, showWarning, showConfirm, toastSuccess } = useNotification();
+  const [classes, setClasses] = useState([]);
+  const [filteredClasses, setFilteredClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [attemptedClasses, setAttemptedClasses] = useState({});
+  const [showStudentIdModal, setShowStudentIdModal] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState(null);
+  const [studentInput, setStudentInput] = useState(''); // Single input for ID or Name
+  const [errorMessage, setErrorMessage] = useState('');
+  const [studentSuggestions, setStudentSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
+
+  useEffect(() => {
+    filterClasses();
+  }, [classes, searchQuery]);
+
+  useEffect(() => {
+    if (classes.length > 0) {
+      checkAllAttemptStatuses();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classes.length]);
+
+  const filterClasses = () => {
+    let filtered = [...classes];
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(classItem =>
+        classItem.subjectId?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredClasses(filtered);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const checkAllAttemptStatuses = async () => {
+    // Get stored attempts from localStorage
+    const storedAttempts = JSON.parse(localStorage.getItem('attemptedClasses') || '{}');
+    const newAttemptedClasses = {};
+    
+    // Verify stored attempts are still valid
+    for (const classItem of classes) {
+      if (storedAttempts[classItem._id]) {
+        const storedAttempt = storedAttempts[classItem._id];
+        const attempted = await checkAttemptStatus(classItem._id, storedAttempt.studentId);
+        if (attempted) {
+          newAttemptedClasses[classItem._id] = storedAttempt;
+        } else {
+          // Remove invalid stored attempt
+          delete storedAttempts[classItem._id];
+          localStorage.setItem('attemptedClasses', JSON.stringify(storedAttempts));
+        }
+      }
+    }
+    
+    setAttemptedClasses(newAttemptedClasses);
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.API_URL}/classes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        // Only show ongoing classes to students (not scheduled, completed, or cancelled)
+        const ongoingClasses = data.data.filter(classItem => 
+          classItem.status === 'ongoing' && !classItem.isDeleted
+        );
+        setClasses(ongoingClasses);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching classes:', err);
+      setLoading(false);
+    }
+  };
+
+
+  const handleAttemptClick = (classId) => {
+    setSelectedClassId(classId);
+    setShowStudentIdModal(true);
+    setStudentInput('');
+    setErrorMessage('');
+    setStudentSuggestions([]);
+    setShowSuggestions(false);
+    setSelectedStudent(null);
+  };
+
+  // Fetch student suggestions for autocomplete
+  const fetchStudentSuggestions = async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim().length < 1) {
+      setStudentSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_CONFIG.API_URL}/students/search/autocomplete?query=${encodeURIComponent(searchTerm)}`
+      );
+      const data = await response.json();
+      
+      if (data.success) {
+        setStudentSuggestions(data.data);
+        setShowSuggestions(data.data.length > 0);
+      } else {
+        setStudentSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (err) {
+      console.error('Error fetching student suggestions:', err);
+      setStudentSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleStudentInputChange = (e) => {
+    const value = e.target.value;
+    setStudentInput(value);
+    setErrorMessage('');
+    setSelectedStudent(null);
+    
+    // Fetch suggestions as user types
+    fetchStudentSuggestions(value);
+  };
+
+  const handleStudentSuggestionSelect = (student) => {
+    setStudentInput(`${student.name} (ID: ${student.studentId})`);
+    setSelectedStudent(student);
+    setStudentSuggestions([]);
+    setShowSuggestions(false);
+    setErrorMessage('');
+  };
+
+  const handleAttemptClass = async () => {
+    if (!studentInput.trim()) {
+      setErrorMessage('Please enter your Student ID or Name');
+      return;
+    }
+
+    // Use selected student's ID if available, otherwise use input value
+    const studentIdToSend = selectedStudent ? selectedStudent.studentId : studentInput.trim();
+
+    try {
+      const response = await fetch(`${API_CONFIG.API_URL}/attempts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          classId: selectedClassId,
+          studentId: studentIdToSend,
+          studentName: studentIdToSend // Send same value for both, backend will handle validation
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Update attempted status
+        const attemptData = { 
+          attempted: true, 
+          studentId: studentIdToSend
+        };
+        setAttemptedClasses(prev => ({
+          ...prev,
+          [selectedClassId]: attemptData
+        }));
+        
+        // Store in localStorage
+        const storedAttempts = JSON.parse(localStorage.getItem('attemptedClasses') || '{}');
+        storedAttempts[selectedClassId] = attemptData;
+        localStorage.setItem('attemptedClasses', JSON.stringify(storedAttempts));
+        
+        setShowStudentIdModal(false);
+        setStudentInput('');
+        setErrorMessage('');
+        setStudentSuggestions([]);
+        setShowSuggestions(false);
+        setSelectedStudent(null);
+        fetchClasses(); // Refresh classes to update counts
+        showSuccess('Class Joined', 'Successfully attempted and joined the class!');
+      } else {
+        setErrorMessage(data.message || 'Student not found. Please check that your Student ID or Name is registered in the system.');
+      }
+    } catch (err) {
+      console.error('Error attempting class:', err);
+      setErrorMessage('Network error. Please try again.');
+    }
+  };
+
+  const handleLeaveClass = async (classId, studentId) => {
+    const confirmed = await showConfirm({
+      title: 'Leave Class?',
+      message: 'Are you sure you want to leave this class session?',
+      confirmText: 'Leave Class',
+      confirmBtnColor: '#dc2626'
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_CONFIG.API_URL}/attempts/${classId}/${studentId}/leave`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setAttemptedClasses(prev => {
+          const updated = { ...prev };
+          delete updated[classId];
+          return updated;
+        });
+        
+        // Remove from localStorage (so they can attempt again if needed)
+        const storedAttempts = JSON.parse(localStorage.getItem('attemptedClasses') || '{}');
+        delete storedAttempts[classId];
+        localStorage.setItem('attemptedClasses', JSON.stringify(storedAttempts));
+        
+        fetchClasses(); // Refresh classes to update counts
+        showSuccess('Left Class', data.message || 'Left class successfully');
+      } else {
+        showError('Action Failed', data.message || 'Failed to leave class');
+      }
+    } catch (err) {
+      console.error('Error leaving class:', err);
+      showError('Network Error', 'Network error. Please try again.');
+    }
+  };
+
+  const checkAttemptStatus = async (classId, studentId) => {
+    try {
+      const response = await fetch(`${API_CONFIG.API_URL}/attempts/check/${classId}/${studentId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      return data.attempted || false;
+    } catch (err) {
+      console.error('Error checking attempt status:', err);
+      return false;
+    }
+  };
+
+  const getBreakStatusText = (breakStatus) => {
+    if (breakStatus === 'on_break') return 'On Break';
+    if (breakStatus === 'class_starting') return 'Class Starting';
+    return null;
+  };
+
+  const getBreakStatusClass = (breakStatus) => {
+    if (breakStatus === 'on_break') return 'break-on-break';
+    if (breakStatus === 'class_starting') return 'break-class-starting';
+    return '';
+  };
+
+  return (
+    <div className="classes-page">
+      <Header onSearch={handleSearch} />
+      
+      <main className="classes-main">
+        <div className="classes-header">
+          <h1 className="classes-title">All Classes</h1>
+          <p className="classes-description">
+            View all classes published by teachers and join your preferred classes.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="classes-empty">
+            <p>Loading classes...</p>
+          </div>
+        ) : filteredClasses.length === 0 ? (
+          <div className="classes-empty">
+            <p>
+              {searchQuery.trim() 
+                ? `No classes found matching "${searchQuery}". Try a different search term.`
+                : 'No classes available at the moment. Please check back later.'
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="classes-container">
+            {filteredClasses.map((classItem) => (
+              <div key={classItem._id} className="class-card">
+                {classItem.subjectId?.image && (
+                  <div className="class-image-container">
+                    <img 
+                      src={getImageUrlWithFallback(classItem.subjectId.image)} 
+                      alt={classItem.subjectId.name}
+                      className="class-image"
+                      onError={(e) => {
+                        console.error('Image failed to load:', getImageUrlWithFallback(classItem.subjectId.image));
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                
+                <div className="class-card-content">
+                  <div className="class-header-info">
+                    <h2 className="class-subject-name">{classItem.subjectId?.name || 'N/A'}</h2>
+                    <span className={`class-status-badge status-${classItem.status}`}>
+                      {classItem.status}
+                    </span>
+                  </div>
+                  
+                  <p className="class-description">
+                    {classItem.subjectId?.description || 'No description available'}
+                  </p>
+
+                  {classItem.breakStatus && classItem.breakStatus !== 'none' && (
+                    <div className={`break-status-badge ${getBreakStatusClass(classItem.breakStatus)}`}>
+                      {getBreakStatusText(classItem.breakStatus)}
+                    </div>
+                  )}
+
+                  <div className="class-details-grid">
+                    <div className="class-detail-card">
+                      <img src={teacherIcon} alt="Teacher" className="detail-icon" />
+                      <div className="detail-content">
+                        <span className="detail-title">Teacher</span>
+                        <span className="detail-text">{classItem.teacherId?.name || 'N/A'}</span>
+                      </div>
+                    </div>
+
+                    <div className="class-detail-card">
+                      <img src={dateIcon} alt="Date" className="detail-icon" />
+                      <div className="detail-content">
+                        <span className="detail-title">Date</span>
+                        <span className="detail-text">{classItem.date}</span>
+                      </div>
+                    </div>
+
+                    <div className="class-detail-card">
+                      <img src={timeIcon} alt="Time" className="detail-icon" />
+                      <div className="detail-content">
+                        <span className="detail-title">Time</span>
+                        <span className="detail-text">{classItem.time}</span>
+                      </div>
+                    </div>
+
+                    <div className="class-detail-card">
+                      <img src={emailIcon} alt="Email" className="detail-icon" />
+                      <div className="detail-content">
+                        <span className="detail-title">Email</span>
+                        <span className="detail-text">{classItem.teacherId?.email || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="class-action-buttons">
+                    {attemptedClasses[classItem._id]?.attempted ? (
+                      <>
+                        <button 
+                          className="attempted-class-btn-page"
+                          disabled
+                        >
+                          Attempted
+                        </button>
+                        {/* <button 
+                          className="leave-class-btn-page"
+                          onClick={() => handleLeaveClass(classItem._id, attemptedClasses[classItem._id].studentId)}
+                        >
+                          Leave Class
+                        </button> */}
+                      </>
+                    ) : (
+                      <button 
+                        className="attempt-class-btn-page"
+                        onClick={() => handleAttemptClick(classItem._id)}
+                      >
+                        Attempt Class
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Student ID and Name Modal */}
+      {showStudentIdModal && (
+        <div className="modal-overlay" onClick={() => setShowStudentIdModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Enter Student Information</h2>
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="studentInput">Student ID or Name *</label>
+                <div className="student-search-container">
+                  <input
+                    type="text"
+                    id="studentInput"
+                    value={studentInput}
+                    onChange={handleStudentInputChange}
+                    onFocus={() => {
+                      if (studentInput) {
+                        fetchStudentSuggestions(studentInput);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay hiding suggestions to allow click
+                      setTimeout(() => setShowSuggestions(false), 200);
+                    }}
+                    placeholder="Type Student ID, first name, last name, or full name..."
+                    autoFocus
+                    autoComplete="off"
+                  />
+                  {showSuggestions && studentSuggestions.length > 0 && (
+                    <div className="student-suggestions-dropdown">
+                      {studentSuggestions.map((student, index) => (
+                        <div
+                          key={student._id || index}
+                          onClick={() => handleStudentSuggestionSelect(student)}
+                        >
+                          <div>{student.name}</div>
+                          <div>ID: {student.studentId}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <small style={{ display: 'block', marginTop: '5px', color: '#666', fontSize: '0.9em' }}>
+                  Type to see suggestions of registered students
+                </small>
+                {selectedStudent && (
+                  <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#f0f8ff', borderRadius: '4px' }}>
+                    <p style={{ margin: 0, fontSize: '0.9em' }}>
+                      <strong>Selected:</strong> {selectedStudent.name} (ID: {selectedStudent.studentId})
+                    </p>
+                  </div>
+                )}
+              </div>
+              {errorMessage && (
+                <span className="error-message">{errorMessage}</span>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setShowStudentIdModal(false)}>
+                Cancel
+              </button>
+              <button className="submit-btn" onClick={handleAttemptClass}>
+                Attempt Class
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ClassesPage;
+

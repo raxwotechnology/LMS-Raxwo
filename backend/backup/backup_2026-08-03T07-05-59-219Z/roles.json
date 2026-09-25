@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "68ff48c8621bd924f81d8eae",
+    "name": "manager",
+    "createdAt": "2025-10-27T10:26:16.115Z",
+    "__v": 0
+  },
+  {
+    "_id": "68ff48d0621bd924f81d8eb6",
+    "name": "cashier",
+    "createdAt": "2025-10-27T10:26:24.741Z",
+    "__v": 0
+  },
+  {
+    "_id": "68ff536807637655401b8af7",
+    "name": "Teacher",
+    "createdAt": "2025-10-27T11:11:36.014Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a75408403cd6094cdff6b",
+    "name": "Teaching assistant",
+    "createdAt": "2025-12-23T10:56:00.924Z",
+    "__v": 0
+  }
+]

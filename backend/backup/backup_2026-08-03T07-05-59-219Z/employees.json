@@ -1,0 +1,48 @@
+[
+  {
+    "_id": "694a72c98403cd6094cdff1f",
+    "name": "Nipuni Willarachchi",
+    "email": "ransaranipr@gmail.com",
+    "password": "$2a$10$I7FQKxsd.6mC0/1VxXx4Bef/DWeLooM6jZJuv19Z6SsP0CGRZMx1e",
+    "role": "Teacher",
+    "basicSalary": 50000,
+    "commission": 0,
+    "permissions": {
+      "Dashboard": true,
+      "Employee": true,
+      "Students": true,
+      "Subjects": true,
+      "Class": true,
+      "Expenses": true,
+      "Salary": true,
+      "Income": true
+    },
+    "status": "active",
+    "monthlyCommissions": [],
+    "createdAt": "2025-12-23T10:45:29.129Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a75498403cd6094cdff76",
+    "name": "Tharushi Kapugamage",
+    "email": "tharushiiromika99@gmail.com",
+    "password": "$2a$10$P7Xrelg8H0BnpmMKGYnPtO52zUmbaq.a8W89wYts1g.kkSZv65m1C",
+    "role": "Teaching assistant",
+    "basicSalary": 8000,
+    "commission": 0,
+    "permissions": {
+      "Dashboard": false,
+      "Employee": false,
+      "Students": true,
+      "Subjects": false,
+      "Class": true,
+      "Expenses": false,
+      "Salary": false,
+      "Income": false
+    },
+    "status": "active",
+    "monthlyCommissions": [],
+    "createdAt": "2025-12-23T10:56:09.310Z",
+    "__v": 0
+  }
+]

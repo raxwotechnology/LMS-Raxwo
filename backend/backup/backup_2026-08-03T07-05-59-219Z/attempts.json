@@ -1,0 +1,148 @@
+[
+  {
+    "_id": "693f9790bacd858deb873d75",
+    "classId": "693f974cbacd858deb873d58",
+    "studentId": "ID0002",
+    "studentName": "Tharuka Kapugamage",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-15T05:07:28.750Z",
+    "__v": 0
+  },
+  {
+    "_id": "693faeadd074dd7a9b79c9c6",
+    "classId": "693fae93d074dd7a9b79c9b3",
+    "studentId": "ID0002",
+    "studentName": "Tharuka Kapugamage",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-15T06:46:05.058Z",
+    "__v": 0
+  },
+  {
+    "_id": "693ff2260976f18ae5749e13",
+    "classId": "693fef66e36285a4652cb156",
+    "studentId": "ID0001",
+    "studentName": "sanjana deshan",
+    "studentEmail": "sdeshan960@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-15T11:33:58.132Z",
+    "__v": 0
+  },
+  {
+    "_id": "69401244f91981166f1d52f3",
+    "classId": "693ff24e0976f18ae5749e3c",
+    "studentId": "ID0001",
+    "studentName": "sanjana deshan",
+    "studentEmail": "sdeshan960@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-15T13:51:00.108Z",
+    "__v": 0
+  },
+  {
+    "_id": "69439ccaf419a4498c2ca4e9",
+    "classId": "6941490409b0248b174239fa",
+    "studentId": "ID0003",
+    "studentName": "Ayeli Kapugamage",
+    "studentEmail": "sanj@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-18T06:18:50.208Z",
+    "__v": 0
+  },
+  {
+    "_id": "69452c3c5826f4c022a4d0f2",
+    "classId": "69447309ba7b028f351872c1",
+    "studentId": "ID0002",
+    "studentName": "Nirmal deshan",
+    "studentEmail": "sdeshan960@gmail.com",
+    "status": "active",
+    "attendance": "attended",
+    "createdAt": "2025-12-19T10:43:08.902Z",
+    "__v": 0,
+    "attendanceMarkedAt": "2025-12-19T18:34:28.819Z"
+  },
+  {
+    "_id": "69459aa13b4f4228abec4b0d",
+    "classId": "69447309ba7b028f351872c1",
+    "studentId": "ID0001",
+    "studentName": "sanjana deshan",
+    "studentEmail": "sdeshan960@gmail.com",
+    "status": "active",
+    "attendance": "attended",
+    "createdAt": "2025-12-19T18:34:09.180Z",
+    "__v": 0,
+    "attendanceMarkedAt": "2025-12-19T18:34:28.819Z"
+  },
+  {
+    "_id": "69459add3b4f4228abec4b61",
+    "classId": "69459ad43b4f4228abec4b4c",
+    "studentId": "ID0001",
+    "studentName": "sanjana deshan",
+    "studentEmail": "sdeshan960@gmail.com",
+    "status": "active",
+    "attendance": "attended",
+    "createdAt": "2025-12-19T18:35:09.650Z",
+    "__v": 0,
+    "attendanceMarkedAt": "2025-12-19T18:35:17.271Z"
+  },
+  {
+    "_id": "6948d9c5da9d6fdea9d5543d",
+    "classId": "6948d9a3da9d6fdea9d55429",
+    "studentId": "ID0001",
+    "studentName": "Tharuka Kapugamage",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-22T05:40:21.103Z",
+    "__v": 0
+  },
+  {
+    "_id": "6948da2bda9d6fdea9d5546a",
+    "classId": "6948d9a3da9d6fdea9d55429",
+    "studentId": "ID0002",
+    "studentName": "Tharuka Desula",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-22T05:42:03.977Z",
+    "__v": 0
+  },
+  {
+    "_id": "6948dee2da9d6fdea9d55679",
+    "classId": "6948de01da9d6fdea9d555cd",
+    "studentId": "ID0002",
+    "studentName": "Tharuka Desula",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-22T06:02:10.308Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a41f3ceb209cfe25037d0",
+    "classId": "6948de01da9d6fdea9d555cd",
+    "studentId": "ID0001",
+    "studentName": "Tharuka Kapugamage",
+    "studentEmail": "tharukark@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-23T07:17:07.876Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a6635dbf035638d47b760",
+    "classId": "694a65eddbf035638d47b72a",
+    "studentId": "ID0005",
+    "studentName": "Nipuni Willarachchi",
+    "studentEmail": "ransaranipr@gmail.com",
+    "status": "active",
+    "attendance": "pending",
+    "createdAt": "2025-12-23T09:51:49.758Z",
+    "__v": 0
+  }
+]

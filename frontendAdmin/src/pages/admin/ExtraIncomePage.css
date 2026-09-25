@@ -1,0 +1,598 @@
+.extra-income-page {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.extra-income-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.extra-income-content {
+  flex: 1;
+  padding: 0.75rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.extra-income-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.extra-income-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.extra-income-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.extra-income-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.extra-income-search input {
+  padding: 0.55rem 2.2rem 0.55rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  min-width: 220px;
+  transition: border-color 0.2s ease;
+}
+
+.extra-income-search input:focus {
+  outline: none;
+  border-color: #0369A1;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.search-clear-btn:hover {
+  color: #4b5563;
+}
+
+.report-btn {
+  background: #0369A1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  font-size: 0.8125rem;
+}
+
+.report-btn:hover:not(:disabled) {
+  background: #075985;
+  transform: translateY(-1px);
+}
+
+.report-btn:disabled {
+  background: #BAE6FD;
+  color: #E0F2FE;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.filter-toggle-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.filter-toggle-btn:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+}
+
+.filter-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.filtered-report-btn {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  font-size: 0.75rem;
+}
+
+.filtered-report-btn:hover:not(:disabled) {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.filtered-report-btn:disabled {
+  background: #fde68a;
+  color: #92400e;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Filter Section */
+.filter-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.filter-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 0.625rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 0.625rem;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.months-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.months-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.375rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.month-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  background: #f9fafb;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+}
+
+.month-checkbox-label:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.month-checkbox-label input[type="checkbox"]:checked + span {
+  color: #0369A1;
+  font-weight: 600;
+}
+
+.month-checkbox-label:has(input[type="checkbox"]:checked) {
+  background: #E0F2FE;
+  border-color: #0369A1;
+}
+
+.month-checkbox-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #0369A1;
+  flex-shrink: 0;
+}
+
+.month-checkbox-label span {
+  color: #4b5563;
+  font-weight: 500;
+  user-select: none;
+}
+
+.selected-months-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #E0F2FE;
+  border-radius: 6px;
+  border: 1.5px solid #7DD3FC;
+  font-size: 0.6875rem;
+  color: #0369A1;
+  margin-top: 0.25rem;
+}
+
+.selected-months-info span {
+  font-weight: 600;
+}
+
+.clear-filter-btn {
+  background: #0369A1;
+  color: white;
+  border: none;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.clear-filter-btn:hover {
+  background: #075985;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(3, 105, 161, 0.3);
+}
+
+.add-extra-income-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.8125rem;
+}
+
+.add-extra-income-btn:hover {
+  background: #16a34a;
+}
+
+.extra-income-form-container {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.extra-income-form-container h2 {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.extra-income-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.form-group .required {
+  color: #dc2626;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.625rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #22c55e;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.error-message {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.submit-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.extra-income-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+}
+
+.total-display {
+  padding: 0.75rem;
+  background: #f0fdf4;
+  border-bottom: 2px solid #22c55e;
+  text-align: right;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+.extra-income-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.extra-income-table thead {
+  background: #f9fafb;
+}
+
+.extra-income-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.extra-income-table td {
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.edit-btn {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.875rem;
+}
+
+.edit-btn:hover {
+  background: #BAE6FD;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.875rem;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+.extra-income-table td button {
+  margin: 0 0.25rem;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .extra-income-page {
+    flex-direction: column;
+  }
+
+  .extra-income-main-content {
+    width: 100%;
+  }
+
+  .extra-income-content {
+    padding: 1rem;
+  }
+
+  .extra-income-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .extra-income-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .months-checkbox-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .selected-months-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .clear-filter-btn {
+    width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .extra-income-table {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .extra-income-content {
+    padding: 0.75rem;
+  }
+
+  .extra-income-header {
+    gap: 0.75rem;
+  }
+
+  .extra-income-form-container {
+    padding: 0.875rem;
+  }
+
+  .extra-income-form {
+    gap: 0.625rem;
+  }
+
+  .extra-income-table table {
+    min-width: 560px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .extra-income-content {
+    padding: 0.5rem;
+  }
+
+  .extra-income-form-container {
+    padding: 0.75rem;
+  }
+
+  .add-extra-income-btn {
+    width: 100%;
+  }
+}
+

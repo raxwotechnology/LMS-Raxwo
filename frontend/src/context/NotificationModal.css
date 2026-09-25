@@ -1,0 +1,305 @@
+/* =========================================================
+   WISDOM INSTITUTE - NOTIFICATION & MODAL SYSTEM STYLES
+   ========================================================= */
+
+/* Modal Backdrop Overlay */
+.wisdom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(3, 105, 161, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 99998;
+  animation: wisdomFadeIn 0.2s ease-out forwards;
+}
+
+/* Modal Content Card */
+.wisdom-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 440px;
+  padding: 2.25rem 2rem 1.85rem;
+  text-align: center;
+  box-shadow: 0 25px 60px -12px rgba(3, 105, 161, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: wisdomModalSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Accent bar at the top of modal */
+.wisdom-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.wisdom-modal-card.type-success::before {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.wisdom-modal-card.type-error::before {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+.wisdom-modal-card.type-warning::before {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.wisdom-modal-card.type-info::before {
+  background: linear-gradient(90deg, #0369A1, #38BDF8);
+}
+
+/* Modal Icon Badge */
+.wisdom-modal-icon-badge {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.35rem;
+  font-size: 32px;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.wisdom-modal-icon-badge.type-success {
+  background-color: #dcfce7;
+  color: #16a34a;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.2);
+}
+
+.wisdom-modal-icon-badge.type-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
+}
+
+.wisdom-modal-icon-badge.type-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.2);
+}
+
+.wisdom-modal-icon-badge.type-info {
+  background-color: #E0F2FE;
+  color: #0369A1;
+  box-shadow: 0 8px 20px rgba(3, 105, 161, 0.2);
+}
+
+/* Modal Title */
+.wisdom-modal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.65rem 0;
+  letter-spacing: -0.01em;
+}
+
+/* Modal Message Body */
+.wisdom-modal-message {
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 1.75rem 0;
+  white-space: pre-line;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0 0.25rem;
+}
+
+/* Modal Buttons Container */
+.wisdom-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.wisdom-modal-btn {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.wisdom-modal-btn:active {
+  transform: scale(0.98);
+}
+
+.wisdom-modal-btn-cancel {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.wisdom-modal-btn-cancel:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.wisdom-modal-btn-primary {
+  color: #ffffff;
+}
+
+.wisdom-modal-btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* -------------------------------------------------------------
+   TOAST NOTIFICATIONS STACK (Top-Right)
+   ------------------------------------------------------------- */
+.wisdom-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 48px);
+}
+
+.wisdom-toast-item {
+  pointer-events: auto;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.95rem 1.15rem;
+  box-shadow: 0 12px 32px -4px rgba(3, 105, 161, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: wisdomToastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid #16a34a;
+}
+
+.wisdom-toast-item.type-success {
+  border-left-color: #16a34a;
+}
+
+.wisdom-toast-item.type-error {
+  border-left-color: #dc2626;
+}
+
+.wisdom-toast-item.type-warning {
+  border-left-color: #d97706;
+}
+
+.wisdom-toast-item.type-info {
+  border-left-color: #0369A1;
+}
+
+.wisdom-toast-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.wisdom-toast-icon.type-success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.wisdom-toast-icon.type-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.wisdom-toast-icon.type-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.wisdom-toast-icon.type-info {
+  background-color: #E0F2FE;
+  color: #0369A1;
+}
+
+.wisdom-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wisdom-toast-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #1e293b;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.wisdom-toast-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.wisdom-toast-close:hover {
+  color: #475569;
+}
+
+/* Animations */
+@keyframes wisdomFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wisdomModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wisdomToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}

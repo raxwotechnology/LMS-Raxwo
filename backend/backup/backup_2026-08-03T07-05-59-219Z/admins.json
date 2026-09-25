@@ -1,0 +1,13 @@
+[
+  {
+    "_id": "68ff0bd2ac636f4c857a60b5",
+    "name": "Admin",
+    "email": "admin@lms.com",
+    "password": "$2a$10$3KqwG0Ma3GugCrtKa4XRG.pnrtIY9yxz1hAx0yfrR85YXSKbhVZtC",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2025-10-27T06:06:10.847Z",
+    "updatedAt": "2025-10-27T06:06:10.847Z",
+    "__v": 0
+  }
+]

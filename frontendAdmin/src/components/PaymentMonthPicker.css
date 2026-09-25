@@ -1,0 +1,251 @@
+/* Payment Month Picker Container Card */
+.payment-month-picker {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.125rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.payment-month-picker:hover {
+  border-color: #cbd5e1;
+}
+
+/* Toolbar */
+.month-picker-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.875rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.month-picker-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.month-picker-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Toolbar Buttons (Pill-shaped, outlined, turn blue on hover/active) */
+.month-toolbar-btn {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  border-radius: 9999px;
+  padding: 0.32rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  line-height: 1.2;
+}
+
+.month-toolbar-btn:hover:not(:disabled) {
+  border-color: #0284c7;
+  color: #0284c7;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.15);
+}
+
+.month-toolbar-btn:active:not(:disabled) {
+  transform: translateY(0);
+  background: #e0f2fe;
+}
+
+.month-toolbar-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+/* 3-Column on desktop, 2-Column on smaller screens */
+.month-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .month-chips-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+/* Month Chip Buttons */
+.month-chip-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.625rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: left;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Default State: light background, subtle border, dark text */
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  color: #1e293b;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+/* Slight lift on hover */
+.month-chip-btn:hover:not(:disabled):not(.selected) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.07);
+}
+
+.month-chip-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Selected State: blue gradient background, white text, no border, soft glow/shadow */
+.month-chip-btn.selected {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.38);
+  transform: translateY(-1px);
+}
+
+.month-chip-btn.selected:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.46);
+}
+
+/* Chip Indicator Icons */
+.chip-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.chip-empty-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.month-chip-btn:hover .chip-empty-dot {
+  background: #0284c7;
+  transform: scale(1.15);
+}
+
+.chip-check-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.chip-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Footer Row (separated by a dashed top border) */
+.month-picker-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1.5px dashed #cbd5e1;
+  padding-top: 0.875rem;
+  margin-top: 0.35rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.month-picker-count {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.month-picker-total {
+  font-size: 0.875rem;
+  color: #334155;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.total-label {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.total-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0369a1;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 480px) {
+  .payment-month-picker {
+    padding: 0.875rem;
+  }
+  .month-picker-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

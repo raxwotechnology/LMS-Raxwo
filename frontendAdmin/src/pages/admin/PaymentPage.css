@@ -1,0 +1,1020 @@
+.payment-page {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.payment-container {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.payment-header {
+  margin-bottom: 1rem;
+}
+
+.payment-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.25rem;
+}
+
+.payment-subtitle {
+  font-size: 0.8125rem;
+  color: #000000;
+}
+
+.payment-form {
+  background: white;
+  border-radius: 6px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
+  font-size: 0.8125rem;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #a7f3d0;
+  font-size: 0.8125rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.375rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: #000000;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #0369A1;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.student-info {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.student-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.4rem 1rem;
+}
+
+.student-info p {
+  margin: 0.125rem 0;
+  font-size: 0.8125rem;
+  color: #0f172a;
+}
+
+.fee-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.fee-currency-prefix {
+  position: absolute;
+  left: 0.75rem;
+  color: #0369A1;
+  font-weight: 700;
+  font-size: 0.875rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.fee-input-wrapper input {
+  width: 100%;
+  padding-left: 3.25rem !important;
+  font-weight: 600;
+  color: #0f172a;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+.fee-input-wrapper input:focus {
+  border-color: #0369A1;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.auto-generated {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #0369A1;
+}
+
+.subjects-selection {
+  margin-top: 0.375rem;
+}
+
+.subjects-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 0.375rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #f9fafb;
+}
+
+.subject-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid #e5e7eb;
+}
+
+.subject-checkbox-item:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.subject-checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0369A1;
+}
+
+.subject-checkbox-item span {
+  font-size: 0.8125rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.no-subjects {
+  padding: 0.75rem;
+  text-align: center;
+  color: #000000;
+  font-size: 0.8125rem;
+  background: #f9fafb;
+  border-radius: 4px;
+}
+
+.total-fee-display {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #E0F2FE;
+  border-radius: 4px;
+  border: 2px solid #0369A1;
+}
+
+.fee-breakdown {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+  color: #0369A1;
+}
+
+.fee-total {
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #93c5fd;
+}
+
+.total-fee-display strong {
+  font-size: 1rem;
+  color: #000000;
+}
+
+.months-selection {
+  margin-top: 0.375rem;
+}
+
+.months-checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.375rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #f9fafb;
+}
+
+.month-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid #e5e7eb;
+}
+
+.month-checkbox-item:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.month-checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0369A1;
+}
+
+.month-checkbox-item span {
+  font-size: 0.8125rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.selected-months-display {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f0f9ff;
+  border-radius: 4px;
+  border: 1px solid #bae6fd;
+}
+
+.selected-months-display small {
+  font-size: 0.75rem;
+  color: #0369A1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.submit-btn {
+  flex: 1;
+  padding: 0.625rem 1.25rem;
+  background: #0369A1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #075985;
+}
+
+.submit-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  padding: 0.625rem 1.25rem;
+  background: #f3f4f6;
+  color: #000000;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+  color: #000000;
+  border-color: #9ca3af;
+}
+
+/* Payments List Section */
+.payments-list-section {
+  margin-top: 1.25rem;
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.payments-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.payments-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.payments-list-header h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+/* Status Filter Segmented Pills */
+.status-filter-pills {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 9999px;
+  gap: 3px;
+  border: 1px solid #e2e8f0;
+}
+
+.status-pill-btn {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  user-select: none;
+}
+
+.status-pill-btn:hover:not(.active) {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.status-pill-btn.active {
+  background: #0369a1;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(3, 105, 161, 0.25);
+}
+
+.status-pill-btn.paid.active {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+}
+
+.status-pill-btn.unpaid.active {
+  background: #d97706;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+
+.status-pill-btn .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-pill-btn .dot-paid {
+  background: #10b981;
+}
+
+.status-pill-btn .dot-unpaid {
+  background: #f59e0b;
+}
+
+.status-pill-btn.active .dot-paid,
+.status-pill-btn.active .dot-unpaid {
+  background: #ffffff;
+}
+
+.status-pill-btn .pill-badge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  color: inherit;
+}
+
+.status-pill-btn.active .pill-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Fee Type Filter Segmented Pills */
+.fee-type-filter-pills {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 9999px;
+  gap: 3px;
+  border: 1px solid #e2e8f0;
+}
+
+.status-pill-btn.fee-pill.active {
+  background: #0369a1;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(3, 105, 161, 0.25);
+}
+
+.status-pill-btn.fee-pill.monthly.active {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+.status-pill-btn.fee-pill.admission.active {
+  background: #d97706;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+
+.status-pill-btn.fee-pill.admission-monthly.active {
+  background: #7e22ce;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(126, 34, 206, 0.25);
+}
+
+.status-pill-btn .dot-monthly {
+  background: #0284c7;
+}
+
+.status-pill-btn .dot-admission {
+  background: #f59e0b;
+}
+
+.status-pill-btn .dot-admission-monthly {
+  background: #a855f7;
+}
+
+.status-pill-btn.active .dot-monthly,
+.status-pill-btn.active .dot-admission,
+.status-pill-btn.active .dot-admission-monthly {
+  background: #ffffff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+/* Status & Fee Type Filter Dropdowns */
+.status-filter-item,
+.fee-type-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-filter-item label,
+.fee-type-filter-item label {
+  font-size: 0.775rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.status-filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-filter-select:focus {
+  outline: none;
+  border-color: #0369a1;
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.15);
+}
+
+/* Active Filter Strip */
+.active-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem 0.875rem;
+  margin-bottom: 0.875rem;
+  font-size: 0.8125rem;
+  color: #475569;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.active-filter-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.filter-active-tag.paid {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.filter-active-tag.unpaid {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.filter-active-tag.search {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.filter-active-tag.fee-type {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.filter-active-tag.fee-type.admission-fee {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.filter-active-tag.fee-type.admission-monthly-fee {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.filter-active-tag button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.filter-active-tag button:hover {
+  opacity: 1;
+}
+
+.clear-all-filters-btn,
+.reset-filters-btn {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-all-filters-btn:hover,
+.reset-filters-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.reset-filters-btn {
+  margin-top: 0.75rem;
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.reset-filters-btn:hover {
+  background: #075985;
+  color: #ffffff;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 0.5rem 2rem 0.5rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  min-width: 220px;
+  transition: border-color 0.2s ease;
+  color: #000000;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #0369A1;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-search-btn:hover {
+  color: #4b5563;
+}
+
+.generate-report-btn {
+  background: #0369A1;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.875rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.8125rem;
+}
+
+.generate-report-btn:hover:not(:disabled) {
+  background: #075985;
+}
+
+.generate-report-btn:disabled {
+  background: #9ca3af;
+  color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+
+.loading-message,
+.no-payments {
+  text-align: center;
+  padding: 1.25rem;
+  color: #000000;
+  font-size: 0.8125rem;
+}
+
+.payments-table-container {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.payments-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.payments-table th {
+  padding: 0.5rem 0.625rem;
+  text-align: left;
+  font-weight: 600;
+  color: #000000;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.payments-table td {
+  padding: 0.5rem 0.625rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #000000;
+}
+
+.payments-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.subjects-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.subject-tag {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  background: #f3f4f6;
+  color: #000000;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.amount-cell {
+  font-weight: 600;
+  color: #000000;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-payment-btn,
+.delete-payment-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-payment-btn {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.edit-payment-btn:hover {
+  background: #BAE6FD;
+}
+
+.delete-payment-btn {
+  background: #FEECEB;
+  color: #D93025;
+}
+
+.delete-payment-btn:hover {
+  background: #FCE8E6;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.payment-edit-modal h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .payment-container {
+    padding: 1rem;
+  }
+
+  .payment-form {
+    padding: 1.5rem;
+  }
+
+  .payment-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+
+  .payments-list-section {
+    padding: 1rem;
+  }
+
+
+  .payments-table {
+    font-size: 0.75rem;
+  }
+
+  .payments-table th,
+  .payments-table td {
+    padding: 0.5rem;
+  }
+
+  .payments-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-bar {
+    width: 100%;
+  }
+
+  .search-bar input {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .generate-report-btn {
+    width: 100%;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .edit-payment-btn,
+  .delete-payment-btn {
+    width: 100%;
+    font-size: 0.6875rem;
+    padding: 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1rem;
+    max-width: 95%;
+  }
+
+  .payment-edit-modal h2 {
+    font-size: 1.125rem;
+  }
+
+  .months-checkbox-list {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 150px;
+  }
+
+  .fee-breakdown {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+/* Fee Type & Status Badges in Payment Records */
+.fee-type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.725rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fee-type-badge.admission-monthly-fee,
+.fee-type-badge.registration-fee {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.fee-type-badge.admission-fee {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.fee-type-badge.monthly-fee {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.fee-adm-cell {
+  color: #b45309;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fee-mon-cell {
+  color: #0369a1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.payment-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.payment-status-badge.paid {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.payment-status-badge.pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+

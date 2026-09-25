@@ -1,0 +1,463 @@
+import mongoose from 'mongoose';
+import Marks from '../models/Marks.js';
+import Student from '../models/Student.js';
+import Subject from '../models/Subject.js';
+import Employee from '../models/Employee.js';
+
+// Auto calculate academic grade based on standard scoring
+export const calculateGrade = (marks) => {
+  const num = parseFloat(marks);
+  if (isNaN(num)) return 'F';
+  if (num >= 75) return 'A';
+  if (num >= 65) return 'B';
+  if (num >= 55) return 'C';
+  if (num >= 35) return 'S';
+  return 'F';
+};
+
+// @desc    Get all marks records
+// @route   GET /api/marks
+// @access  Private
+export const getMarks = async (req, res) => {
+  try {
+    const marksRecords = await Marks.find()
+      .populate('studentId', 'name studentId email grade')
+      .populate({
+        path: 'subjects.subjectId',
+        select: 'name conductedBy',
+        populate: {
+          path: 'conductedBy',
+          select: 'name role'
+        }
+      })
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json({
+      success: true,
+      count: marksRecords.length,
+      data: marksRecords
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get marks by student ID, email, or _id
+// @route   GET /api/marks/student/:studentId
+// @access  Public
+export const getMarksByStudentId = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    if (!studentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student ID is required'
+      });
+    }
+
+    const clean = studentId.trim();
+    const isObjectId = mongoose.Types.ObjectId.isValid(clean);
+
+    // Find student by studentId, email, or _id
+    const student = await Student.findOne({
+      $or: [
+        { studentId: { $regex: `^${clean}$`, $options: 'i' } },
+        { email: clean.toLowerCase() },
+        ...(isObjectId ? [{ _id: clean }] : [])
+      ]
+    });
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found with this ID or email'
+      });
+    }
+
+    const marksRecords = await Marks.find({ studentId: student._id })
+      .populate('studentId', 'name studentId email grade')
+      .populate({
+        path: 'subjects.subjectId',
+        select: 'name conductedBy',
+        populate: {
+          path: 'conductedBy',
+          select: 'name role'
+        }
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: marksRecords.length,
+      data: marksRecords
+    });
+  } catch (error) {
+    console.error('Error fetching marks by student:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Validate student by ID, first name, last name, or full name
+// @route   GET /api/marks/validate-student/:identifier
+// @access  Private
+export const validateStudent = async (req, res) => {
+  try {
+    const { studentId: identifier } = req.params;
+    const searchTerm = identifier.trim();
+    
+    // Try to find student by ID first
+    let student = await Student.findOne({ studentId: searchTerm })
+      .populate('subjects', 'name _id');
+
+    // If not found by ID, try searching by name (first name, last name, or full name)
+    if (!student) {
+      // Fetch all students and match by name
+      const allStudents = await Student.find().select('name studentId subjects');
+      
+      // Find student by matching first name, last name, or full name (case-insensitive)
+      student = allStudents.find(s => {
+        const studentName = (s.name || '').trim().toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+        
+        // Split student's full name into parts
+        const nameParts = studentName.split(/\s+/).filter(part => part.length > 0);
+        const firstName = nameParts.length > 0 ? nameParts[0] : '';
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+        
+        // Check if search term matches first name, last name, or full name
+        const matchesFirstName = firstName && searchLower === firstName;
+        const matchesLastName = lastName && searchLower === lastName;
+        const matchesFullName = searchLower === studentName;
+        
+        // Also check if search term matches reversed full name (e.g., "Last First" matches "First Last")
+        const searchParts = searchLower.split(/\s+/).filter(part => part.length > 0);
+        const matchesReversed = searchParts.length === nameParts.length && 
+          searchParts.length === 2 &&
+          searchParts[0] === nameParts[1] && 
+          searchParts[1] === nameParts[0];
+        
+        return matchesFirstName || matchesLastName || matchesFullName || matchesReversed;
+      });
+      
+      // If found, populate subjects
+      if (student) {
+        await student.populate('subjects', 'name _id');
+      }
+    }
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found. Please enter a valid Student ID, first name, last name, or full name.',
+        valid: false
+      });
+    }
+
+    // Populate subjects if they're ObjectIds
+    let populatedSubjects = student.subjects;
+    if (student.subjects && student.subjects.length > 0 && typeof student.subjects[0] === 'object' && student.subjects[0]._id) {
+      // Already populated
+      populatedSubjects = student.subjects;
+    } else if (student.subjects && student.subjects.length > 0) {
+      // Need to populate
+      await student.populate('subjects', 'name _id');
+      populatedSubjects = student.subjects;
+    }
+
+    res.status(200).json({
+      success: true,
+      valid: true,
+      data: {
+        studentId: student._id,
+        name: student.name,
+        studentIdField: student.studentId,
+        grade: student.grade,
+        subjects: populatedSubjects
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Create marks record
+// @route   POST /api/marks
+// @access  Private
+export const createMarks = async (req, res) => {
+  try {
+    const { studentId, subjects, examType } = req.body;
+    const resolvedExamType = (examType || '1st Term Test').trim();
+
+    if (!studentId || !subjects || !Array.isArray(subjects) || subjects.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide student ID and at least one subject with marks and grade'
+      });
+    }
+
+    // Validate student exists
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Check if marks already exist for this student AND exam type
+    const existingMarks = await Marks.findOne({ studentId, examType: resolvedExamType });
+    if (existingMarks) {
+      return res.status(400).json({
+        success: false,
+        message: `Marks already exist for this student for "${resolvedExamType}". Please update instead.`
+      });
+    }
+
+    // Validate and process subjects
+    const processedSubjects = [];
+    for (const subject of subjects) {
+      if (!subject.subjectId || subject.marks === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'Each subject must have subjectId and marks'
+        });
+      }
+
+      if (!subject.grade || !subject.grade.trim()) {
+        subject.grade = calculateGrade(subject.marks);
+      }
+
+      if (subject.marks < 0 || subject.marks > 100) {
+        return res.status(400).json({
+          success: false,
+          message: 'Marks must be between 0 and 100'
+        });
+      }
+
+      let subjectId = subject.subjectId;
+      
+      // Check if subjectId is a valid ObjectId
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(subjectId);
+      
+      if (!isValidObjectId) {
+        // If not a valid ObjectId, treat it as a subject name
+        // Try to find existing subject by name
+        let subjectDoc = await Subject.findOne({ name: subjectId });
+        
+        if (!subjectDoc) {
+          // Create a temporary test subject if it doesn't exist
+          // Note: This is a temporary solution for test subjects
+          // Find any employee to use as conductedBy (required field)
+          const anyEmployee = await Employee.findOne();
+          
+          if (!anyEmployee) {
+            return res.status(400).json({
+              success: false,
+              message: 'Cannot create test subjects. No employees found in the system. Please create a subject first.'
+            });
+          }
+
+          subjectDoc = await Subject.create({
+            name: subjectId,
+            description: `Temporary test subject: ${subjectId}`,
+            image: '/uploads/default-subject.png',
+            conductedBy: anyEmployee._id,
+            status: 'active'
+          });
+        }
+        
+        subjectId = subjectDoc._id;
+      } else {
+        // Validate subject exists
+        const subjectExists = await Subject.findById(subjectId);
+        if (!subjectExists) {
+          return res.status(404).json({
+            success: false,
+            message: `Subject with ID ${subjectId} not found`
+          });
+        }
+      }
+
+      processedSubjects.push({
+        subjectId: subjectId,
+        marks: subject.marks,
+        grade: subject.grade
+      });
+    }
+
+    // Create marks record
+    const marksRecord = await Marks.create({
+      studentId,
+      examType: resolvedExamType,
+      subjects: processedSubjects
+    });
+
+    // Populate before sending response
+    await marksRecord.populate('studentId', 'name studentId email');
+    await marksRecord.populate('subjects.subjectId', 'name');
+
+    res.status(201).json({
+      success: true,
+      message: 'Marks created successfully',
+      data: marksRecord
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Update marks record
+// @route   PUT /api/marks/:id
+// @access  Private
+export const updateMarks = async (req, res) => {
+  try {
+    const { subjects, examType } = req.body;
+
+    let marksRecord = await Marks.findById(req.params.id);
+
+    if (!marksRecord) {
+      return res.status(404).json({
+        success: false,
+        message: 'Marks record not found'
+      });
+    }
+
+    // Update examType if provided
+    if (examType && examType.trim()) {
+      marksRecord.examType = examType.trim();
+    }
+
+    if (subjects && Array.isArray(subjects)) {
+      // Validate and process subjects
+      const processedSubjects = [];
+      for (const subject of subjects) {
+        if (!subject.subjectId || subject.marks === undefined) {
+          return res.status(400).json({
+            success: false,
+            message: 'Each subject must have subjectId and marks'
+          });
+        }
+
+        if (!subject.grade || !subject.grade.trim()) {
+          subject.grade = calculateGrade(subject.marks);
+        }
+
+        if (subject.marks < 0 || subject.marks > 100) {
+          return res.status(400).json({
+            success: false,
+            message: 'Marks must be between 0 and 100'
+          });
+        }
+
+        let subjectId = subject.subjectId;
+        
+        // Check if subjectId is a valid ObjectId
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(subjectId);
+        
+        if (!isValidObjectId) {
+          // If not a valid ObjectId, treat it as a subject name
+          // Try to find existing subject by name
+          let subjectDoc = await Subject.findOne({ name: subjectId });
+          
+          if (!subjectDoc) {
+            // Create a temporary test subject if it doesn't exist
+            // Find any employee to use as conductedBy (required field)
+            const anyEmployee = await Employee.findOne();
+            
+            if (!anyEmployee) {
+              return res.status(400).json({
+                success: false,
+                message: 'Cannot create test subjects. No employees found in the system. Please create a subject first.'
+              });
+            }
+
+            subjectDoc = await Subject.create({
+              name: subjectId,
+              description: `Temporary test subject: ${subjectId}`,
+              image: '/uploads/default-subject.png',
+              conductedBy: anyEmployee._id,
+              status: 'active'
+            });
+          }
+          
+          subjectId = subjectDoc._id;
+        } else {
+          // Validate subject exists
+          const subjectExists = await Subject.findById(subjectId);
+          if (!subjectExists) {
+            return res.status(404).json({
+              success: false,
+              message: `Subject with ID ${subjectId} not found`
+            });
+          }
+        }
+
+        processedSubjects.push({
+          subjectId: subjectId,
+          marks: subject.marks,
+          grade: subject.grade
+        });
+      }
+
+      marksRecord.subjects = processedSubjects;
+    }
+
+    await marksRecord.save();
+
+    // Populate before sending response
+    await marksRecord.populate('studentId', 'name studentId email');
+    await marksRecord.populate('subjects.subjectId', 'name');
+
+    res.status(200).json({
+      success: true,
+      message: 'Marks updated successfully',
+      data: marksRecord
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Delete marks record
+// @route   DELETE /api/marks/:id
+// @access  Private
+export const deleteMarks = async (req, res) => {
+  try {
+    const marksRecord = await Marks.findById(req.params.id);
+
+    if (!marksRecord) {
+      return res.status(404).json({
+        success: false,
+        message: 'Marks record not found'
+      });
+    }
+
+    await marksRecord.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Marks deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+

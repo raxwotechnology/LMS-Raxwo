@@ -1,0 +1,1006 @@
+'use client';
+import styles from './page.module.css';
+import { useRouter } from 'next/navigation';
+
+const safeLocalStorage = {
+  getItem: (key) => (typeof window !== 'undefined' ? window.safeLocalStorage.getItem(key) : null),
+  setItem: (key, val) => (typeof window !== 'undefined' ? window.safeLocalStorage.setItem(key, val) : undefined),
+  removeItem: (key) => (typeof window !== 'undefined' ? window.safeLocalStorage.removeItem(key) : undefined),
+};
+
+import React, { useEffect, useMemo, useState } from 'react';
+import Sidebar from '@/components/admin/Sidebar';
+import Topbar from '@/components/admin/Topbar';
+import { getImageUrlWithFallback } from '@/utils/imageUtils';
+const revenueIcon = '/assets/revenue.png';
+const subjectsIcon = '/assets/subjects (2).png';
+const paidIcon = '/assets/paid.png';
+const nonPaidIcon = '/assets/nonpaid.png';
+const employeesIcon = '/assets/totalemployers.png';
+const timeIcon = '/assets/time.png';
+const dateIcon = '/assets/date.png';
+
+const AdminDashboard = () => {
+  const router = useRouter();
+  const navigate = (path) => router.push(path);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [summary, setSummary] = useState({
+    totalEarnings: 0,
+    totalSubjects: 0,
+    paidStudents: 0,
+    unpaidStudents: 0,
+    totalEmployees: 0
+  });
+  const [topCourses, setTopCourses] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [studentsList, setStudentsList] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [roleChecked, setRoleChecked] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const token = useMemo(() => safeLocalStorage.getItem('adminToken'), []);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  // Helper function to get start and end dates of a month
+  const getMonthDateRange = (monthName, year = new Date().getFullYear()) => {
+    const monthIndex = months.findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+    if (monthIndex === -1) return null;
+    
+    const startDate = new Date(year, monthIndex, 1);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(year, monthIndex + 1, 0);
+    endDate.setHours(23, 59, 59, 999);
+    
+    return { startDate, endDate };
+  };
+
+  useEffect(() => {
+    const userData = safeLocalStorage.getItem('user');
+    const userTypeData = safeLocalStorage.getItem('userType');
+    let detectedType = null;
+
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        detectedType = parsedUser?.type || null;
+      } catch (err) {
+        console.error('Failed to parse user data:', err);
+      }
+    }
+
+    if (!detectedType && userTypeData) {
+      detectedType = userTypeData;
+    }
+
+    if (detectedType === 'admin') {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+      navigate('/admin/class', { replace: true });
+    }
+
+    setRoleChecked(true);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (roleChecked && isAdmin) {
+      fetchDashboardData();
+    }
+  }, [roleChecked, isAdmin, selectedMonth]);
+
+  const fetchDashboardData = async () => {
+    if (!isAdmin) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const headers = token
+        ? {
+            Authorization: `Bearer ${token}`
+          }
+        : {};
+
+      // Build query parameters for month filter
+      const incomeParams = new URLSearchParams();
+      const paymentsParams = new URLSearchParams();
+      if (selectedMonth) {
+        incomeParams.append('months', selectedMonth);
+        paymentsParams.append('month', selectedMonth);
+      }
+
+      const [
+        incomeResponse,
+        subjectsResponse,
+        studentsResponse,
+        employeesResponse,
+        classesResponse,
+        paymentsResponse
+      ] = await Promise.all([
+        fetch(`/api/income/statistics${incomeParams.toString() ? '?' + incomeParams.toString() : ''}`, { headers }),
+        fetch(`/api/subjects`, { headers }),
+        fetch(`/api/students`, { headers }),
+        fetch(`/api/admin/employees`, { headers }),
+        fetch(`/api/classes?includeDeleted=false`, { headers }),
+        fetch(`/api/payments${paymentsParams.toString() ? '?' + paymentsParams.toString() : ''}`, { headers })
+      ]);
+
+      const [
+        incomeData,
+        subjectsData,
+        studentsData,
+        employeesData,
+        classesData,
+        paymentsData
+      ] = await Promise.all([
+        incomeResponse.json(),
+        subjectsResponse.json(),
+        studentsResponse.json(),
+        employeesResponse.json(),
+        classesResponse.json(),
+        paymentsResponse.json()
+      ]);
+
+      if (!incomeData?.success) {
+        throw new Error(incomeData?.message || 'Failed to fetch income statistics');
+      }
+
+      if (!subjectsData?.success) {
+        throw new Error(subjectsData?.message || 'Failed to fetch subjects');
+      }
+
+      if (!studentsData?.success) {
+        throw new Error(studentsData?.message || 'Failed to fetch students');
+      }
+
+      if (!employeesData?.success) {
+        throw new Error(employeesData?.message || 'Failed to fetch employees');
+      }
+
+      if (!classesData?.success) {
+        throw new Error(classesData?.message || 'Failed to fetch classes');
+      }
+
+      if (!paymentsData?.success) {
+        throw new Error(paymentsData?.message || 'Failed to fetch payments');
+      }
+
+      const subjects = subjectsData.data || [];
+      const students = studentsData.data || [];
+      const employees = employeesData.data || [];
+      const payments = paymentsData.data || [];
+      const fetchedClasses = (classesData.data || []).filter(
+        (cls) => cls.status === 'ongoing' && !cls.isDeleted
+      );
+
+      // Create a Set of student IDs that have payment records
+      const studentsWithPayments = new Set();
+      payments.forEach((payment) => {
+        const studentId = typeof payment.studentId === 'object' 
+          ? payment.studentId._id?.toString() || payment.studentId._id
+          : payment.studentId?.toString() || payment.studentId;
+        if (studentId) {
+          studentsWithPayments.add(studentId);
+        }
+      });
+
+      // Filter payments by month if selected
+      let filteredPayments = payments;
+      if (selectedMonth) {
+        filteredPayments = payments.filter((payment) => {
+          const paymentMonth = payment.month || '';
+          // Check if the payment month includes the selected month
+          // Payment month can be "January" or "January, February" format
+          return paymentMonth.toLowerCase().includes(selectedMonth.toLowerCase());
+        });
+        
+        // Recalculate studentsWithPayments based on filtered payments
+        studentsWithPayments.clear();
+        filteredPayments.forEach((payment) => {
+          const studentId = typeof payment.studentId === 'object' 
+            ? payment.studentId._id?.toString() || payment.studentId._id
+            : payment.studentId?.toString() || payment.studentId;
+          if (studentId) {
+            studentsWithPayments.add(studentId);
+          }
+        });
+      }
+
+      // Get month date range if month is selected
+      const monthDateRange = selectedMonth ? getMonthDateRange(selectedMonth) : null;
+
+      // Filter students by registration date if month is selected
+      // Only count students registered on or before the end of the selected month
+      let eligibleStudents = students;
+      if (selectedMonth && monthDateRange) {
+        eligibleStudents = students.filter((student) => {
+          // Use registrationDate if available, otherwise use createdAt
+          const registrationDate = student.registrationDate 
+            ? new Date(student.registrationDate)
+            : (student.createdAt ? new Date(student.createdAt) : null);
+          
+          if (!registrationDate) return false;
+          
+          // Student must be registered on or before the end of the selected month
+          return registrationDate <= monthDateRange.endDate;
+        });
+      }
+
+      // Count paid students as those who have at least one payment record (for selected month if filtered)
+      // AND are eligible (registered before/on the selected month)
+      const paidStudents = eligibleStudents.filter((student) => {
+        const studentId = student._id?.toString() || student._id;
+        return studentsWithPayments.has(studentId);
+      }).length;
+      
+      // Unpaid students are those without any payment records (for selected month if filtered)
+      // AND are eligible (registered before/on the selected month)
+      const unpaidStudents = eligibleStudents.length - paidStudents;
+
+      setSummary({
+        totalEarnings: incomeData.data?.totalRevenue || 0,
+        totalSubjects: subjects.length,
+        paidStudents,
+        unpaidStudents,
+        totalEmployees: employees.length
+      });
+      setStudentsList(students);
+
+      const subjectLookup = new Map(
+        subjects.map((subject) => [subject._id, subject])
+      );
+
+      // Calculate top courses based on payment data
+      const courseStats = new Map();
+
+      payments.forEach((payment) => {
+        const paymentSubjects = payment.subjects || [];
+        const subjectCount = paymentSubjects.length;
+        const totalAmount = payment.totalAmount || 0;
+        
+        // Calculate amount per subject (divide payment amount equally among subjects)
+        const amountPerSubject = subjectCount > 0 ? totalAmount / subjectCount : 0;
+
+        paymentSubjects.forEach((subjectRef) => {
+          const subjectId = typeof subjectRef === 'string' ? subjectRef : subjectRef?._id;
+          if (!subjectId) {
+            return;
+          }
+
+          const subjectInfo =
+            (typeof subjectRef === 'object' && subjectRef !== null ? subjectRef : subjectLookup.get(subjectId)) ||
+            {};
+
+          // Use subject's default price for display, but actual payment amount for revenue
+          const subjectPrice = subjectInfo.price || 0;
+
+          const existing = courseStats.get(subjectId) || {
+            id: subjectId,
+            name: subjectInfo.name || 'Unknown Subject',
+            price: subjectPrice,
+            teacher: subjectInfo.conductedBy?.name || subjectInfo.conductedBy || '',
+            image: subjectInfo.image || ''
+          };
+
+          // Calculate revenue based on actual payment amount divided by subjects
+          // Each enrollment counts as 1, and contributes its share of the payment
+          courseStats.set(subjectId, {
+            ...existing,
+            enrollmentCount: (existing.enrollmentCount || 0) + 1,
+            revenue: (existing.revenue || 0) + amountPerSubject
+          });
+        });
+      });
+
+      const computedTopCourses = Array.from(courseStats.values())
+        .sort((a, b) => {
+          // Sort by revenue first, then by enrollment count
+          if ((b.revenue || 0) !== (a.revenue || 0)) {
+            return (b.revenue || 0) - (a.revenue || 0);
+          }
+          return (b.enrollmentCount || 0) - (a.enrollmentCount || 0);
+        })
+        .slice(0, 3);
+
+      setTopCourses(computedTopCourses);
+      setClasses(fetchedClasses);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(err.message || 'Failed to load dashboard data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value || 0);
+  };
+
+  const createStudentReport = (students, filename, paymentMap = null, isNonPaidReport = false) => {
+    if (!studentsList.length) {
+      alert('No student data available.');
+      return;
+    }
+
+    const targetStudents = students(studentsList);
+
+    if (!targetStudents.length) {
+      alert('No matching students found for this report.');
+      return;
+    }
+
+    const headers = ['Student ID', 'Student Name', 'Registration Date', 'Email', 'Mobile', 'Subjects', 'Payment Type'];
+    const rows = targetStudents.map((student) => {
+      const subjectNames = Array.isArray(student.subjects)
+        ? student.subjects
+            .map((subject) =>
+              typeof subject === 'object' ? subject.name : subject
+            )
+            .filter(Boolean)
+            .join(', ')
+        : '';
+
+      // Get payment type from payment records if paymentMap is provided
+      let paymentType = '';
+      if (isNonPaidReport) {
+        // For non-paid reports, set payment type as "Non"
+        paymentType = 'Non';
+      } else if (paymentMap) {
+        const studentId = student._id?.toString() || student._id;
+        const paymentInfo = paymentMap.get(studentId);
+        if (paymentInfo && paymentInfo.paymentMethod) {
+          paymentType = paymentInfo.paymentMethod;
+        }
+      } else {
+        // Fallback to student's paymentType if no paymentMap
+        paymentType = student.paymentType || '';
+      }
+
+      // Format registration date (use manual registrationDate or fallback to createdAt)
+      const registrationDate = student.registrationDate 
+        ? new Date(student.registrationDate).toISOString().slice(0, 10)
+        : (student.createdAt ? new Date(student.createdAt).toISOString().slice(0, 10) : '');
+
+      return [
+        student.studentId || '',
+        student.name || '',
+        registrationDate,
+        student.email || '',
+        student.mobile || '',
+        subjectNames,
+        paymentType
+      ];
+    });
+
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row
+          .map((cell) => {
+            const value = String(cell ?? '');
+            return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+          })
+          .join(',')
+      )
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadNonPaidReport = async () => {
+    // Fetch payments to determine which students have payment records
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      // Build query parameters for month filter
+      const paymentsParams = new URLSearchParams();
+      if (selectedMonth) {
+        paymentsParams.append('month', selectedMonth);
+      }
+      
+      const paymentsUrl = selectedMonth 
+        ? `/api/payments?${paymentsParams.toString()}`
+        : `/api/payments`;
+      
+      const paymentsResponse = await fetch(paymentsUrl, { headers });
+      const paymentsData = await paymentsResponse.json();
+      const payments = paymentsData.success ? paymentsData.data || [] : [];
+
+      // Filter payments by month if selected
+      let filteredPayments = payments;
+      if (selectedMonth) {
+        filteredPayments = payments.filter((payment) => {
+          const paymentMonth = payment.month || '';
+          // Check if the payment month includes the selected month
+          return paymentMonth.toLowerCase().includes(selectedMonth.toLowerCase());
+        });
+      }
+
+      // Create a Set of student IDs that have payment records (for selected month if filtered)
+      const studentsWithPayments = new Set();
+      filteredPayments.forEach((payment) => {
+        const studentId = typeof payment.studentId === 'object' 
+          ? payment.studentId._id?.toString() || payment.studentId._id
+          : payment.studentId?.toString() || payment.studentId;
+        if (studentId) {
+          studentsWithPayments.add(studentId);
+        }
+      });
+
+      // Get month date range if month is selected
+      const monthDateRange = selectedMonth ? getMonthDateRange(selectedMonth) : null;
+
+      const reportFilename = selectedMonth 
+        ? `non-paid-students-${selectedMonth.toLowerCase()}`
+        : 'non-paid-students';
+
+      createStudentReport(
+        (students) => {
+          let eligibleStudents = students;
+          
+          // Filter by registration date if month is selected
+          if (selectedMonth && monthDateRange) {
+            eligibleStudents = students.filter((student) => {
+              // Use registrationDate if available, otherwise use createdAt
+              const registrationDate = student.registrationDate 
+                ? new Date(student.registrationDate)
+                : (student.createdAt ? new Date(student.createdAt) : null);
+              
+              if (!registrationDate) return false;
+              
+              // Student must be registered on or before the end of the selected month
+              return registrationDate <= monthDateRange.endDate;
+            });
+          }
+          
+          // Return non-paid students (no payment for selected month) who are eligible
+          return eligibleStudents.filter((student) => {
+            const studentId = student._id?.toString() || student._id;
+            return !studentsWithPayments.has(studentId);
+          });
+        },
+        reportFilename,
+        null,
+        true // isNonPaidReport = true
+      );
+    } catch (err) {
+      console.error('Error fetching payments for report:', err);
+      alert('Failed to generate report. Please try again.');
+    }
+  };
+
+  const handleDownloadPaidReport = async () => {
+    // Fetch payments to determine which students have payment records
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      // Build query parameters for month filter
+      const paymentsParams = new URLSearchParams();
+      if (selectedMonth) {
+        paymentsParams.append('month', selectedMonth);
+      }
+      
+      const paymentsUrl = selectedMonth 
+        ? `/api/payments?${paymentsParams.toString()}`
+        : `/api/payments`;
+      
+      const paymentsResponse = await fetch(paymentsUrl, { headers });
+      const paymentsData = await paymentsResponse.json();
+      const payments = paymentsData.success ? paymentsData.data || [] : [];
+
+      // Filter payments by month if selected
+      let filteredPayments = payments;
+      if (selectedMonth) {
+        filteredPayments = payments.filter((payment) => {
+          const paymentMonth = payment.month || '';
+          // Check if the payment month includes the selected month
+          return paymentMonth.toLowerCase().includes(selectedMonth.toLowerCase());
+        });
+      }
+
+      // Create a Set of student IDs that have payment records (for selected month if filtered)
+      const studentsWithPayments = new Set();
+      // Create a Map of student ID to payment methods (collect all unique payment methods)
+      const studentPaymentMap = new Map();
+      
+      filteredPayments.forEach((payment) => {
+        const studentId = typeof payment.studentId === 'object' 
+          ? payment.studentId._id?.toString() || payment.studentId._id
+          : payment.studentId?.toString() || payment.studentId;
+        if (studentId) {
+          studentsWithPayments.add(studentId);
+          // Collect all payment methods for this student
+          if (!studentPaymentMap.has(studentId)) {
+            studentPaymentMap.set(studentId, new Set());
+          }
+          if (payment.paymentMethod) {
+            studentPaymentMap.get(studentId).add(payment.paymentMethod);
+          }
+        }
+      });
+
+      // Convert Sets to comma-separated strings for the report
+      const studentPaymentMethodMap = new Map();
+      studentPaymentMap.forEach((methods, studentId) => {
+        studentPaymentMethodMap.set(studentId, {
+          paymentMethod: Array.from(methods).join(', ')
+        });
+      });
+
+      // Get month date range if month is selected
+      const monthDateRange = selectedMonth ? getMonthDateRange(selectedMonth) : null;
+
+      const reportFilename = selectedMonth 
+        ? `paid-students-${selectedMonth.toLowerCase()}`
+        : 'paid-students';
+
+      createStudentReport(
+        (students) => {
+          let eligibleStudents = students;
+          
+          // Filter by registration date if month is selected
+          if (selectedMonth && monthDateRange) {
+            eligibleStudents = students.filter((student) => {
+              // Use registrationDate if available, otherwise use createdAt
+              const registrationDate = student.registrationDate 
+                ? new Date(student.registrationDate)
+                : (student.createdAt ? new Date(student.createdAt) : null);
+              
+              if (!registrationDate) return false;
+              
+              // Student must be registered on or before the end of the selected month
+              return registrationDate <= monthDateRange.endDate;
+            });
+          }
+          
+          // Return paid students (have payment for selected month) who are eligible
+          return eligibleStudents.filter((student) => {
+            const studentId = student._id?.toString() || student._id;
+            return studentsWithPayments.has(studentId);
+          });
+        },
+        reportFilename,
+        studentPaymentMethodMap
+      );
+    } catch (err) {
+      console.error('Error fetching payments for report:', err);
+      alert('Failed to generate report. Please try again.');
+    }
+  };
+
+  const handleGenerateFilteredReport = () => {
+    if (!selectedMonth) {
+      alert('Please select a month to generate a filtered report.');
+      return;
+    }
+
+    // Build report data
+    const reportData = [
+      ['Dashboard Report - Filtered by Month'],
+      [`Month: ${selectedMonth}`],
+      [`Generated: ${new Date().toISOString().slice(0, 10)}`],
+      [],
+      ['Key Metrics'],
+      ['Metric', 'Value'],
+      ['Total Earnings', `LKR ${formatCurrency(summary.totalEarnings)}`],
+      ['Total Subjects', summary.totalSubjects],
+      ['Paid Students', summary.paidStudents],
+      ['Non-paid Students', summary.unpaidStudents],
+      ['Total Employees', summary.totalEmployees],
+      [],
+      ['Top Selling Courses'],
+      ['Course Name', 'Enrollments', 'Price (LKR)', 'Revenue (LKR)'],
+      ...topCourses.map((course) => [
+        course.name || 'Unknown',
+        course.enrollmentCount || 0,
+        formatCurrency(course.price || 0),
+        formatCurrency(course.revenue || 0)
+      ]),
+      [],
+      ['Payment Statistics'],
+      ['Total Revenue from Payments', `LKR ${formatCurrency(chartSegments.total)}`]
+    ];
+
+    const csvContent = reportData
+      .map((row) =>
+        row
+          .map((cell) => {
+            const value = String(cell ?? '');
+            return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+          })
+          .join(',')
+      )
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const fileName = `dashboard-report-${selectedMonth}-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const formatTime = (time) => {
+    if (!time) return 'N/A';
+    const [hourStr, minuteStr] = time.split(':');
+    if (!hourStr || !minuteStr) return time;
+    let hour = parseInt(hourStr, 10);
+    const minute = minuteStr.padStart(2, '0');
+    const isPM = hour >= 12;
+    if (hour === 0) {
+      hour = 12;
+    } else if (hour > 12) {
+      hour -= 12;
+    }
+    return `${hour}:${minute} ${isPM ? 'PM' : 'AM'}`;
+  };
+
+  const chartSegments = useMemo(() => {
+    if (!topCourses.length) {
+      return {
+        background: '#E5E7EB',
+        total: 0
+      };
+    }
+
+    const totalRevenue = topCourses.reduce((sum, course) => sum + (course.revenue || 0), 0);
+
+    if (totalRevenue === 0) {
+      return {
+        background: '#E5E7EB',
+        total: 0
+      };
+    }
+
+    const palette = ['#6C5CE7', '#00B894', '#0984E3'];
+    const segments = [];
+    let currentPercent = 0;
+
+    topCourses.forEach((course, index) => {
+      const share = ((course.revenue || 0) / totalRevenue) * 100;
+      const endPercent = currentPercent + share;
+      const color = palette[index % palette.length];
+      segments.push(`${color} ${currentPercent}% ${endPercent}%`);
+      currentPercent = endPercent;
+    });
+
+    if (currentPercent < 100) {
+      segments.push(`#E5E7EB ${currentPercent}% 100%`);
+    }
+
+    return {
+      background: `conic-gradient(${segments.join(', ')})`,
+      total: totalRevenue
+    };
+  }, [topCourses]);
+
+  const metricCards = [
+    {
+      id: 'total-earnings',
+      label: 'Total Earnings',
+      value: `LKR ${formatCurrency(summary.totalEarnings)}`,
+      icon: revenueIcon,
+      accent: 'metric-card-positive'
+    },
+    {
+      id: 'total-subjects',
+      label: 'Total Subjects',
+      value: summary.totalSubjects,
+      icon: subjectsIcon,
+      accent: 'metric-card-neutral'
+    },
+    {
+      id: 'paid-students',
+      label: 'Paid Students',
+      value: summary.paidStudents,
+      icon: paidIcon,
+      accent: 'metric-card-positive'
+    },
+    {
+      id: 'unpaid-students',
+      label: 'Non paid Students',
+      value: summary.unpaidStudents,
+      icon: nonPaidIcon,
+      accent: 'metric-card-warning'
+    },
+    {
+      id: 'total-employees',
+      label: 'Total Employees',
+      value: summary.totalEmployees,
+      icon: employeesIcon,
+      accent: 'metric-card-neutral'
+    }
+  ];
+
+  const renderClassCard = (classItem) => {
+    const subject = classItem.subjectId || {};
+    const teacher = classItem.teacherId || {};
+    const date = classItem.date ? new Date(classItem.date) : null;
+
+    const monthLabel = date
+      ? date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      : '';
+    const dayLabel = date ? String(date.getDate()).padStart(2, '0') : '';
+
+    const imageUrl = getImageUrlWithFallback(subject.image, 'https://via.placeholder.com/300x200?text=Class+Image');
+
+    return (
+      <div key={classItem._id} className={styles['ongoing-class-card'] || 'ongoing-class-card'}>
+        <div className={styles['ongoing-class-image-wrapper'] || 'ongoing-class-image-wrapper'}>
+          <img src={imageUrl} alt={subject.name || 'Class'} className={styles['ongoing-class-image'] || 'ongoing-class-image'} />
+          {(monthLabel || dayLabel) && (
+            <div className={styles['ongoing-class-date'] || 'ongoing-class-date'}>
+              <span className={styles['ongoing-class-month'] || 'ongoing-class-month'}>{monthLabel}</span>
+              <span className={styles['ongoing-class-day'] || 'ongoing-class-day'}>{dayLabel}</span>
+            </div>
+          )}
+        </div>
+        <div className={styles['ongoing-class-content'] || 'ongoing-class-content'}>
+          <h3 className={styles['ongoing-class-title'] || 'ongoing-class-title'}>{subject.name || 'Untitled Class'}</h3>
+          <p className={styles['ongoing-class-description'] || 'ongoing-class-description'}>
+            {subject.description ? subject.description.slice(0, 80) + (subject.description.length > 80 ? '…' : '') : 'No description available.'}
+          </p>
+          <div className={styles['ongoing-class-meta'] || 'ongoing-class-meta'}>
+            <div className={styles['ongoing-class-meta-item'] || 'ongoing-class-meta-item'}>
+              <img src={timeIcon} alt="" />
+              <span>{formatTime(classItem.time)}</span>
+            </div>
+            <div className={styles['ongoing-class-meta-item'] || 'ongoing-class-meta-item'}>
+              <img src={dateIcon} alt="" />
+              <span>{teacher.name || 'Unknown Teacher'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (!roleChecked || !isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className={styles['admin-dashboard'] || 'admin-dashboard'}>
+      <Sidebar />
+      <div className={styles['admin-main-content'] || 'admin-main-content'}>
+        <Topbar userName="Wisdom Admin" />
+        <div className={styles['admin-content'] || 'admin-content'}>
+          <div className={styles['admin-header-row'] || 'admin-header-row'}>
+            <h1>Dashboard Overview</h1>
+            <div className={styles['dashboard-header-actions'] || 'dashboard-header-actions'}>
+              <button
+                type="button"
+                className={styles['filter-toggle-btn'] || 'filter-toggle-btn'}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                {showFilters ? 'Hide Filters' : 'Filter'}
+              </button>
+              {selectedMonth && (
+                <>
+                  <button
+                    type="button"
+                    className={styles['clear-filter-btn'] || 'clear-filter-btn'}
+                    onClick={() => setSelectedMonth('')}
+                  >
+                    Clear Filter
+                  </button>
+                  <button
+                    type="button"
+                    className={styles['filtered-report-btn'] || 'filtered-report-btn'}
+                    onClick={handleGenerateFilteredReport}
+                  >
+                    Generate Filtered Report
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Month Filter Section */}
+          {showFilters && (
+            <div className={styles['filter-section'] || 'filter-section'}>
+              <div className={styles['filter-group'] || 'filter-group'}>
+                <label>Select Month</label>
+                <div className={styles['month-select-wrapper'] || 'month-select-wrapper'}>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className={styles['month-select'] || 'month-select'}
+                  >
+                    <option value="">All Months</option>
+                    {months.map((month, index) => (
+                      <option key={index} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedMonth && (
+                    <div className={styles['selected-month-info'] || 'selected-month-info'}>
+                      <span>Filtered by: {selectedMonth}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className={styles['admin-error-banner'] || 'admin-error-banner'}>
+              <p>{error}</p>
+            </div>
+          )}
+
+          <section className={styles['admin-section'] || 'admin-section'}>
+            <h2 className={styles['section-title'] || 'section-title'}>Key Metrics</h2>
+            <div className={styles['metrics-grid'] || 'metrics-grid'}>
+              {metricCards.map((card) => {
+                const isNonPaidCard = card.id === 'unpaid-students';
+                const handleClick = isNonPaidCard ? handleDownloadNonPaidReport : undefined;
+                const handleKeyPress = (event) => {
+                  if (!isNonPaidCard) return;
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleDownloadNonPaidReport();
+                  }
+                };
+
+                const isPaidCard = card.id === 'paid-students';
+
+                return (
+                  <div
+                    key={card.id}
+                    className={`${styles['metric-card'] || 'metric-card'} ${card.accent} ${
+                      isNonPaidCard || isPaidCard ? (styles['metric-card-clickable'] || 'metric-card-clickable') : ''
+                    }`}
+                    onClick={
+                      isNonPaidCard
+                        ? handleDownloadNonPaidReport
+                        : isPaidCard
+                          ? handleDownloadPaidReport
+                          : undefined
+                    }
+                    onKeyDown={(event) => {
+                      if (!(isNonPaidCard || isPaidCard)) return;
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        if (isNonPaidCard) {
+                          handleDownloadNonPaidReport();
+                        } else if (isPaidCard) {
+                          handleDownloadPaidReport();
+                        }
+                      }
+                    }}
+                    role={isNonPaidCard || isPaidCard ? 'button' : undefined}
+                    tabIndex={isNonPaidCard || isPaidCard ? 0 : undefined}
+                    aria-label={
+                      isNonPaidCard
+                        ? 'Download report of non-paid students'
+                        : isPaidCard
+                          ? 'Download report of paid students'
+                          : undefined
+                    }
+                  >
+                    <div className={styles['metric-icon'] || 'metric-icon'}>
+                      <img src={card.icon} alt="" />
+                    </div>
+                    <div className={styles['metric-details'] || 'metric-details'}>
+                      <p className={styles['metric-label'] || 'metric-label'}>{card.label}</p>
+                      <p className={styles['metric-value'] || 'metric-value'}>{card.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <div className={styles['admin-middle-row'] || 'admin-middle-row'}>
+            <section className={`${styles[(styles['admin-section'] || 'admin-section')] || (styles['admin-section'] || 'admin-section')} ${styles[(styles['top-courses-section'] || 'top-courses-section')] || (styles['top-courses-section'] || 'top-courses-section')}`}>
+              <div className={styles['section-header'] || 'section-header'}>
+                <div>
+                  <h2 className={styles['section-title'] || 'section-title'}>Top Selling Courses</h2>
+                  <p className={styles['section-subtitle'] || 'section-subtitle'}>Based on student enrollments</p>
+                </div>
+              </div>
+
+              {topCourses.length ? (
+                <div className={styles['top-courses-content'] || 'top-courses-content'}>
+                  <div
+                    className={styles['top-courses-chart'] || 'top-courses-chart'}
+                    style={{ background: chartSegments.background }}
+                  >
+                    <div className={styles['top-courses-chart-inner'] || 'top-courses-chart-inner'}>
+                      <p className={styles['chart-total-label'] || 'chart-total-label'}>Total</p>
+                      <p className={styles['chart-total-value'] || 'chart-total-value'}>
+                        LKR {formatCurrency(chartSegments.total)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={styles['top-courses-list'] || 'top-courses-list'}>
+                    {topCourses.map((course, index) => {
+                      const palette = ['#6C5CE7', '#00B894', '#0984E3'];
+                      const color = palette[index % palette.length];
+                      return (
+                        <div key={course.id} className={styles['top-course-item'] || 'top-course-item'}>
+                          <span
+                            className={styles['top-course-indicator'] || 'top-course-indicator'}
+                            style={{ backgroundColor: color }}
+                          />
+                          <div className={styles['top-course-details'] || 'top-course-details'}>
+                            <p className={styles['top-course-name'] || 'top-course-name'}>{course.name}</p>
+                            <p className={styles['top-course-meta'] || 'top-course-meta'}>
+                              {course.enrollmentCount || 0} enrollment
+                              {(course.enrollmentCount || 0) === 1 ? '' : 's'}
+                            </p>
+                          </div>
+                          <p className={styles['top-course-price'] || 'top-course-price'}>
+                            {/* LKR {formatCurrency(course.price || 0)} */}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className={styles['empty-state'] || 'empty-state'}>
+                  <p>{loading ? 'Loading chart…' : 'No enrollment data available yet.'}</p>
+                </div>
+              )}
+            </section>
+
+            <section className={`${styles[(styles['admin-section'] || 'admin-section')] || (styles['admin-section'] || 'admin-section')} ${styles[(styles['ongoing-classes-section'] || 'ongoing-classes-section')] || (styles['ongoing-classes-section'] || 'ongoing-classes-section')}`}>
+              <div className={styles['section-header'] || 'section-header'}>
+                <div>
+                  <h2 className={styles['section-title'] || 'section-title'}>Ongoing Classes</h2>
+                  <p className={styles['section-subtitle'] || 'section-subtitle'}>Classes that teachers are currently running</p>
+                </div>
+                <button
+                  type="button"
+                  className={styles['view-classes-link'] || 'view-classes-link'}
+                  onClick={() => navigate('/admin/classes/view')}
+                >
+                  View All
+                </button>
+              </div>
+
+              {classes.length ? (
+                <div className={styles['ongoing-classes-grid'] || 'ongoing-classes-grid'}>
+                  {classes.slice(0, 4).map((classItem) => renderClassCard(classItem))}
+                </div>
+              ) : (
+                <div className={styles['empty-state'] || 'empty-state'}>
+                  <p>{loading ? 'Loading classes…' : 'No ongoing classes at the moment.'}</p>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;

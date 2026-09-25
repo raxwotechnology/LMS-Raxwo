@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "6971d0a0e3da0bbb47a291a8",
+    "studentId": "696469a477defd67805576aa",
+    "studentIdNumber": "ID0001",
+    "title": "Mr",
+    "firstName": "Senul",
+    "lastName": "Fernando",
+    "otherNames": "Senul",
+    "familyName": "Fernando",
+    "email": "ransaranipr@gmail.com",
+    "dateOfBirth": "2019-07-02T00:00:00.000Z",
+    "birthDay": "2",
+    "birthMonth": "7",
+    "birthYear": "2019",
+    "gender": "Male",
+    "telephone": "+94771011910",
+    "mobile": "+94766254016",
+    "specialNeeds": "Yes",
+    "guardianFirstName": "Shamali",
+    "guardianTelephone": "+9494766254016",
+    "exams": [
+      {
+        "subjectId": "694a74998403cd6094cdff57",
+        "subjectName": "FCE",
+        "_id": "6971d0a0e3da0bbb47a291a9"
+      }
+    ],
+    "examDate": "2025-02-02T00:00:00.000Z",
+    "createdAt": "2026-01-22T07:24:16.529Z",
+    "updatedAt": "2026-01-22T07:24:16.533Z",
+    "__v": 0
+  }
+]

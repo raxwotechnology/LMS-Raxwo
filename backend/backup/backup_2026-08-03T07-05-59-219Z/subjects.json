@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "694a73438403cd6094cdff31",
+    "name": "Starters",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766486850754-649337385-Starters.jpg",
+    "description": "Pre A1 Starters",
+    "status": "active",
+    "createdAt": "2025-12-23T10:47:31.350Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a739c8403cd6094cdff39",
+    "name": "Flyers",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766486940236-768606029-Flers.jpg",
+    "description": "A2 Flyers",
+    "status": "active",
+    "createdAt": "2025-12-23T10:49:00.771Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a73da8403cd6094cdff40",
+    "name": "Movers",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766487002162-772148687-Movers.jpg",
+    "description": "A1 Movers",
+    "status": "active",
+    "createdAt": "2025-12-23T10:50:02.777Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a740b8403cd6094cdff47",
+    "name": "PET",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766487050483-814518549-PET.jpg",
+    "description": "B1 Preliminary",
+    "status": "active",
+    "createdAt": "2025-12-23T10:50:51.023Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a743d8403cd6094cdff4e",
+    "name": "KET",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766487100766-508713793-ket.jpg",
+    "description": "A2 Key",
+    "status": "active",
+    "createdAt": "2025-12-23T10:51:41.255Z",
+    "__v": 0
+  },
+  {
+    "_id": "694a74998403cd6094cdff57",
+    "name": "FCE",
+    "conductedBy": "694a72c98403cd6094cdff1f",
+    "image": "https://raxwo-lms.s3.us-east-1.amazonaws.com/uploads/1766487192856-791407179-Screenshot 2025-12-16 171305.jpg",
+    "description": "B2 First for Schools and B2 First",
+    "status": "active",
+    "createdAt": "2025-12-23T10:53:13.322Z",
+    "__v": 0
+  }
+]
