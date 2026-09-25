@@ -14,25 +14,43 @@
     {
       "source": "/api",
       "destination": {
-        "service": "backend"
+        "service": "backend",
+        "path": "/api"
       }
     },
     {
       "source": "/api/(.*)",
       "destination": {
-        "service": "backend"
+        "service": "backend",
+        "path": "/api/$1"
       }
     },
     {
       "source": "/uploads/(.*)",
       "destination": {
-        "service": "backend"
+        "service": "backend",
+        "path": "/uploads/$1"
+      }
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": {
+        "service": "frontend",
+        "path": "/assets/$1"
+      }
+    },
+    {
+      "source": "/(.*\\.(?:js|css|ico|png|jpg|jpeg|svg|webp|json|txt))",
+      "destination": {
+        "service": "frontend",
+        "path": "/$1"
       }
     },
     {
       "source": "/(.*)",
       "destination": {
-        "service": "frontend"
+        "service": "frontend",
+        "path": "/index.html"
       }
     }
   ]

@@ -29,7 +29,7 @@ export const connectDB = async () => {
 
   isConnecting = true;
   try {
-    const uri = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb+srv://admin:NqZa3jDAsLzLjFYQ@cluster0.quxftbn.mongodb.net/lms";
+    const uri = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb+srv://p04waptC2duu0v3K:RR589422@cluster0.yzqehug.mongodb.net/lms-main?appName=Cluster0";
     
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 15000, // 15 seconds timeout

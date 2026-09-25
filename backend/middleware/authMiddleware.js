@@ -19,7 +19,7 @@ export const protectStudent = async (req, res, next) => {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'raxwo_lms_jwt_secret_key_2026_secure_key_89432');
 
       if (decoded.userType && decoded.userType !== 'student') {
         return res.status(401).json({
@@ -81,7 +81,7 @@ export const protect = async (req, res, next) => {
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'raxwo_lms_jwt_secret_key_2026_secure_key_89432');
       
       // Try to get admin first
       let user = await Admin.findById(decoded.id);

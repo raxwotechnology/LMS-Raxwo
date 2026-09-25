@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'your-secret-key', {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'raxwo_lms_jwt_secret_key_2026_secure_key_89432', {
     expiresIn: '7d'
   });
 };
