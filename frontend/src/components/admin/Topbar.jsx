@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getStoredAdminUser } from '../../utils/authStorage';
 import './Topbar.css';
 
 const Topbar = ({ userName }) => {
@@ -11,9 +12,9 @@ const Topbar = ({ userName }) => {
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
 
-  // User details from localStorage or props
-  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const userType = localStorage.getItem('userType');
+  // User details from localStorage or props safely
+  const storedUser = getStoredAdminUser();
+  const userType = localStorage.getItem('userType') || storedUser.type || storedUser.role || '';
   const rawName = (userName && userName !== 'Admin') ? userName : (storedUser.name && storedUser.name !== 'Admin' ? storedUser.name : 'Wisdom Admin');
   const displayName = rawName;
   const displayRole = userType === 'admin' ? 'Administrator' : (storedUser.role || 'Staff');

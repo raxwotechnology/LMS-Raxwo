@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getStoredAdminUser } from '../../utils/authStorage';
 import './Sidebar.css';
 import logo from '../../assets/logo.png';
 import dashboardIcon from '../../assets/dashboard.png';
@@ -37,10 +38,10 @@ const Sidebar = () => {
     { name: "Exam", icon: examIcon, path: "/admin/exam" },
   ];
 
-  // Get user type and permissions
-  const userType = localStorage.getItem('userType');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const userPermissions = user.permissions || {};
+  // Get user type and permissions safely
+  const user = getStoredAdminUser();
+  const userType = localStorage.getItem('userType') || user.type || user.role || '';
+  const userPermissions = (typeof user.permissions === 'object' && user.permissions !== null) ? user.permissions : {};
 
   // Filter nav items based on user permissions
   const navItems = allNavItems.filter(item => {

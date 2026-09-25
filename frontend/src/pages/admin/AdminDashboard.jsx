@@ -5,6 +5,7 @@ import Topbar from '../../components/admin/Topbar';
 import API_CONFIG from '../../config/api';
 import { useNotification } from '../../context/NotificationContext';
 import { generatePdfReport } from '../../utils/pdfReportGenerator';
+import { getStoredAdminUser, getStoredAdminToken, clearAdminAuth } from '../../utils/authStorage';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const token = useMemo(() => localStorage.getItem('adminToken'), []);
+  const token = useMemo(() => getStoredAdminToken(), []);
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -59,27 +60,13 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
+    const user = getStoredAdminUser();
     const userTypeData = localStorage.getItem('userType');
-    let detectedType = null;
+    const detectedType = (user.type || user.role || userTypeData || '').toLowerCase();
 
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        detectedType = parsedUser?.type || parsedUser?.role || null;
-      } catch (err) {
-        console.error('Failed to parse user data:', err);
-      }
-    }
-
-    if (!detectedType && userTypeData) {
-      detectedType = userTypeData;
-    }
-
-    const normalized = (detectedType || '').toLowerCase();
-    if (normalized === 'admin') {
+    if (detectedType === 'admin') {
       setIsAdmin(true);
-    } else if (normalized === 'employee' || normalized === 'teacher') {
+    } else if (detectedType === 'employee' || detectedType === 'teacher') {
       setIsAdmin(false);
       navigate('/admin/class', { replace: true });
     } else {
@@ -297,6 +284,11 @@ const AdminDashboard = () => {
       setClasses(fetchedClasses);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
+      if (err.message && (err.message.includes('authorized') || err.message.includes('token') || err.message.includes('401'))) {
+        clearAdminAuth();
+        navigate('/admin/login', { replace: true });
+        return;
+      }
       setError(err.message || 'Failed to load dashboard data.');
     } finally {
       setLoading(false);
@@ -672,7 +664,7 @@ const AdminDashboard = () => {
     greetingEmoji = '🌙';
   }
 
-  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const storedUser = getStoredAdminUser();
   const adminDisplayName = (storedUser.name && storedUser.name !== 'Admin') ? storedUser.name : 'Wisdom Admin';
   const greetingText = `${greetingBase}, ${adminDisplayName}`;
 
